@@ -29,6 +29,14 @@ class CategoriesList extends Component
         ];
     }
 
+    public function editCategory($categoryId)
+    {
+        $this->resetValidation();
+
+        $this->editedCategoryId = $categoryId;
+        $this->category = Category::find($categoryId);
+    }
+
     public function updatedCategoryName()
     {
         $this->category->slug = Str::slug($this->category->name);
@@ -63,11 +71,20 @@ class CategoriesList extends Component
     public function save() 
     {
         $this->validate();
-        $this->category->position = Category::max('position') + 1;
+        if ($this->editedCategoryId === 0) {
+            $this->category->position = Category::max('position') + 1;
+        }
         $this->category->save();
 
-        $this->reset('showModal');
+        $this->resetValidation();
+        $this->reset('showModal', 'editedCategoryId');
     } 
+
+    public function cancelCategoryEdit()
+    {
+        $this->resetValidation();
+        $this->reset('editedCategoryId');
+    }
 
     public function render()
     {
